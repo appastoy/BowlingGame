@@ -8,22 +8,44 @@ namespace BowlingScoreCalculator
 		public static readonly int MaxPinCount = 10;
 		public static readonly int MaxFrameCount = 10;
 		public static readonly int LastFrameIndex = MaxFrameCount - 1;
-		public static readonly int MaxRollCount = 2;
-		public static readonly int LastRollIndex = MaxRollCount - 1;
+		public static readonly int MaxFrameRollCount = 2;
+		public static readonly int FrameLastRollIndex = MaxFrameRollCount - 1;
+		public static readonly int MaxLastFrameRollCount = 2;
+		public static readonly int LastFrameLastRollIndex = MaxLastFrameRollCount - 1;
 
 		public static bool IsLastFrame(int frameIndex)
 		{
 			return frameIndex == LastFrameIndex;
 		}
 
-		public static bool IsLastRoll(int rollIndex)
+		public static bool IsFrameLastRoll(int frameRollIndex)
 		{
-			return rollIndex == LastRollIndex;
+			return frameRollIndex == FrameLastRollIndex;
 		}
 
-		public static bool IsStrike(int rollIndex, int pinScore)
+		public static bool IsStrike(int frameRollIndex, int pinScore)
 		{
-			return rollIndex == 0 && pinScore == MaxRollCount;
+			return frameRollIndex == 0 && pinScore == MaxPinCount;
+		}
+
+		public static bool IsFrameEnded(int frameIndex, IReadOnlyList<Roll> frameRolls)
+		{
+			if (frameIndex < 0 || frameIndex >= MaxFrameCount) { throw new ArgumentOutOfRangeException(nameof(frameIndex)); }
+			ValidateFrameRolls(frameRolls);
+
+			if (IsLastFrame(frameIndex))
+			{
+				if (frameRolls.Count < 2) { return false; }
+				if (IsFrameOpen(frameRolls) && frameRolls.Count == 2) { return true; }
+				if (frameRolls.Count == MaxLastFrameRollCount) { return true; }
+			}
+			else
+			{
+				if (IsFrameStrike(frameRolls) && frameRolls.Count == 1) { return true; }
+				if (frameRolls.Count == 2) { return true; }
+			}
+
+			throw new ArgumentOutOfRangeException(nameof(frameRolls));
 		}
 
 		public static bool IsFrameStrike(IReadOnlyList<Roll> frameRolls)

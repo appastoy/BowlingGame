@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BowlingScoreCalculator
 {
@@ -22,26 +21,13 @@ namespace BowlingScoreCalculator
 			}
 		}
 
-		public ScoreResult(IReadOnlyList<Frame> frames, bool isGameEnded)
+		public ScoreResult(IReadOnlyList<Frame> frames, bool isGameEnded, int score) : this(frames, isGameEnded, new int?(score)) { }
+		public ScoreResult(IReadOnlyList<Frame> frames, bool isGameEnded) : this(frames, isGameEnded, null) { }
+		ScoreResult(IReadOnlyList<Frame> frames, bool isGameEnded, int? score)
 		{
 			Frames = frames ?? throw new ArgumentNullException(nameof(frames));
 			IsGameEnded = isGameEnded;
-
-			score = null;
-			if (HasConfirmedScore(Frames))
-			{
-				score = GetLastConfirmedScore(Frames);
-			}
-		}
-
-		bool HasConfirmedScore(IEnumerable<Frame> frames)
-		{
-			return frames.Any(frame => frame.IsScoreConfirmed);
-		}
-
-		int GetLastConfirmedScore(IEnumerable<Frame> frames)
-		{
-			return frames.Last(frame => frame.IsScoreConfirmed).Score;
+			this.score = null;
 		}
 	}
 }

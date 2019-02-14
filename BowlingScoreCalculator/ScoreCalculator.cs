@@ -13,7 +13,7 @@ namespace BowlingScoreCalculator
 			var rolls = CreateRolls(pinScores);
 			var frames = CreateFrames(rolls);
 
-			return new ScoreResult(frames, RuleChecker.IsGameEnded(frames));
+			return CalculateScoreResult(frames);
 		}
 
 		static IEnumerable<Roll> CreateRolls(IEnumerable<int> pinScores)
@@ -28,17 +28,16 @@ namespace BowlingScoreCalculator
 		static IReadOnlyList<Frame> CreateFrames(IEnumerable<Roll> rolls)
 		{
 			var frames = new List<Frame>(RuleChecker.MaxFrameCount);
-			var frameRolls = new List<Roll>(RuleChecker.MaxRollCount);
+			var frameRolls = new List<Roll>(RuleChecker.MaxFrameRollCount);
 
 			foreach (var roll in rolls)
 			{
 				var rollIndex = frameRolls.Count;
 				frameRolls.Add(roll);
 
-				var isLastFrame = RuleChecker.IsLastFrame(frames.Count);
-				if (!isLastFrame && (RuleChecker.IsLastRoll(rollIndex) || RuleChecker.IsStrike(rollIndex, roll.PinScore)))
+				if (RuleChecker.IsFrameEnded(frames.Count, frameRolls))
 				{
-					frames.Add(CreateFrame(frameRolls, isLastFrame));
+					frames.Add(CreateFrame(frameRolls, RuleChecker.IsLastFrame(frames.Count)));
 					frameRolls.Clear();
 				}
 			}
@@ -82,6 +81,28 @@ namespace BowlingScoreCalculator
 			}
 
 			throw new InvalidOperationException();
+		}
+
+		static ScoreResult CalculateScoreResult(IReadOnlyList<Frame> frames)
+		{
+			if (HasConfirmedScore(frames))
+			{
+				return new ScoreResult(frames, RuleChecker.IsGameEnded(frames), GetLastConfirmedScore(frames));
+			}
+			else
+			{
+				return new ScoreResult(frames, RuleChecker.IsGameEnded(frames));
+			}
+		}
+
+		static bool HasConfirmedScore(IEnumerable<Frame> frames)
+		{
+			return frames.Any(frame => frame.IsScoreConfirmed);
+		}
+
+		static int GetLastConfirmedScore(IEnumerable<Frame> frames)
+		{
+			return frames.Last(frame => frame.IsScoreConfirmed).Score;
 		}
 	}
 }

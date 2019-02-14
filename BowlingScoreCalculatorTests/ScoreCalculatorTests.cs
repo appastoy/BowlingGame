@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BowlingScoreCalculator;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BowlingScoreCalculator.Tests
 {
