@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace BowlingScoreCalculator
 {
-	public static class RuleChecker
+	public static class Rule
 	{
 		public static readonly int MaxPinCount = 10;
 		public static readonly int MaxFrameCount = 10;
 		public static readonly int LastFrameIndex = MaxFrameCount - 1;
 		public static readonly int MaxFrameRollCount = 2;
 		public static readonly int FrameLastRollIndex = MaxFrameRollCount - 1;
-		public static readonly int MaxLastFrameRollCount = 2;
+		public static readonly int MaxLastFrameRollCount = 3;
 		public static readonly int LastFrameLastRollIndex = MaxLastFrameRollCount - 1;
 
 		public static bool IsLastFrame(int frameIndex)
@@ -35,14 +35,15 @@ namespace BowlingScoreCalculator
 
 			if (IsLastFrame(frameIndex))
 			{
-				if (frameRolls.Count < 2) { return false; }
 				if (IsFrameOpen(frameRolls) && frameRolls.Count == 2) { return true; }
 				if (frameRolls.Count == MaxLastFrameRollCount) { return true; }
+				if (frameRolls.Count < MaxLastFrameRollCount) { return false; }
 			}
 			else
 			{
 				if (IsFrameStrike(frameRolls) && frameRolls.Count == 1) { return true; }
 				if (frameRolls.Count == 2) { return true; }
+				if (frameRolls.Count < 2) { return false; }
 			}
 
 			throw new ArgumentOutOfRangeException(nameof(frameRolls));
@@ -79,7 +80,7 @@ namespace BowlingScoreCalculator
 		{
 			if (frames == null) { throw new ArgumentNullException(nameof(frames)); }
 
-			return frames.Count == MaxFrameCount && frames[LastFrameIndex].IsScoreConfirmed;
+			return frames.Count >= MaxFrameCount && frames[LastFrameIndex].IsScoreConfirmed;
 		}
 	}
 }

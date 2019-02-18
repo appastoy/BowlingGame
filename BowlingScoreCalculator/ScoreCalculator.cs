@@ -27,24 +27,24 @@ namespace BowlingScoreCalculator
 
 		static IReadOnlyList<Frame> CreateFrames(IEnumerable<Roll> rolls)
 		{
-			var frames = new List<Frame>(RuleChecker.MaxFrameCount);
-			var frameRolls = new List<Roll>(RuleChecker.MaxFrameRollCount);
+			var frames = new List<Frame>(Rule.MaxFrameCount);
+			var frameRolls = new List<Roll>(Rule.MaxFrameRollCount);
 
 			foreach (var roll in rolls)
 			{
 				var rollIndex = frameRolls.Count;
 				frameRolls.Add(roll);
 
-				if (RuleChecker.IsFrameEnded(frames.Count, frameRolls))
+				if (Rule.IsFrameEnded(frames.Count, frameRolls))
 				{
-					frames.Add(CreateFrame(frameRolls, RuleChecker.IsLastFrame(frames.Count)));
+					frames.Add(CreateFrame(frameRolls, Rule.IsLastFrame(frames.Count)));
 					frameRolls.Clear();
 				}
 			}
 
 			if (frameRolls.Count > 0)
 			{
-				frames.Add(CreateFrame(frameRolls, RuleChecker.IsLastFrame(frames.Count)));
+				frames.Add(CreateFrame(frameRolls, Rule.IsLastFrame(frames.Count)));
 			}
 
 			return frames;
@@ -64,18 +64,18 @@ namespace BowlingScoreCalculator
 
 		static bool CanCalculateFrameScore(IReadOnlyList<Roll> frameRolls)
 		{
-			if (RuleChecker.IsFrameOpen(frameRolls)) { return true; }
-			if (RuleChecker.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return true; }
-			if (RuleChecker.IsFrameStrike(frameRolls) && frameRolls[0].Next != null && frameRolls[0].Next.Next != null) { return true; }
+			if (Rule.IsFrameOpen(frameRolls)) { return true; }
+			if (Rule.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return true; }
+			if (Rule.IsFrameStrike(frameRolls) && frameRolls[0].Next != null && frameRolls[0].Next.Next != null) { return true; }
 
 			return false;
 		}
 
 		static int CalculateFrameScore(IReadOnlyList<Roll> frameRolls)
 		{
-			if (RuleChecker.IsFrameOpen(frameRolls)) { return frameRolls[0].PinScore + frameRolls[1].PinScore; }
-			if (RuleChecker.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return frameRolls[0].PinScore + frameRolls[1].PinScore + frameRolls[1].Next.PinScore; }
-			if (RuleChecker.IsFrameStrike(frameRolls) && frameRolls[0].Next != null && frameRolls[0].Next.Next != null)
+			if (Rule.IsFrameOpen(frameRolls)) { return frameRolls[0].PinScore + frameRolls[1].PinScore; }
+			if (Rule.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return frameRolls[0].PinScore + frameRolls[1].PinScore + frameRolls[1].Next.PinScore; }
+			if (Rule.IsFrameStrike(frameRolls) && frameRolls[0].Next != null && frameRolls[0].Next.Next != null)
 			{
 				return frameRolls[0].PinScore + frameRolls[0].Next.PinScore + frameRolls[0].Next.Next.PinScore;
 			}
@@ -87,11 +87,11 @@ namespace BowlingScoreCalculator
 		{
 			if (HasConfirmedScore(frames))
 			{
-				return new ScoreResult(frames, RuleChecker.IsGameEnded(frames), GetLastConfirmedScore(frames));
+				return new ScoreResult(frames, Rule.IsGameEnded(frames), GetLastConfirmedScore(frames));
 			}
 			else
 			{
-				return new ScoreResult(frames, RuleChecker.IsGameEnded(frames));
+				return new ScoreResult(frames, Rule.IsGameEnded(frames));
 			}
 		}
 
