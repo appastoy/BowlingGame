@@ -37,24 +37,34 @@ namespace BowlingScoreCalculator
 
 				if (Rule.IsFrameEnded(frames.Count, frameRolls))
 				{
-					frames.Add(CreateFrame(frameRolls, Rule.IsLastFrame(frames.Count)));
+					frames.Add(CreateFrame(frameRolls.ToArray(), GetPrevFrameScore(frames), Rule.IsLastFrame(frames.Count)));
 					frameRolls.Clear();
 				}
 			}
 
 			if (frameRolls.Count > 0)
 			{
-				frames.Add(CreateFrame(frameRolls, Rule.IsLastFrame(frames.Count)));
+				frames.Add(CreateFrame(frameRolls.ToArray(), GetPrevFrameScore(frames), Rule.IsLastFrame(frames.Count)));
 			}
 
 			return frames;
 		}
 
-		static Frame CreateFrame(IReadOnlyList<Roll> frameRolls, bool isLastFrame)
+		static int GetPrevFrameScore(IReadOnlyList<Frame> frames)
+		{
+			if (frames.Count > 0 && frames[frames.Count - 1].IsScoreConfirmed)
+			{
+				return frames[frames.Count - 1].Score;
+			}
+
+			return 0;
+		}
+
+		static Frame CreateFrame(IReadOnlyList<Roll> frameRolls, int prevFrameScore, bool isLastFrame)
 		{
 			if (CanCalculateFrameScore(frameRolls))
 			{
-				return new Frame(frameRolls, isLastFrame, CalculateFrameScore(frameRolls));
+				return new Frame(frameRolls, isLastFrame, CalculateFrameScore(prevFrameScore, frameRolls));
 			}
 			else
 			{
@@ -71,13 +81,13 @@ namespace BowlingScoreCalculator
 			return false;
 		}
 
-		static int CalculateFrameScore(IReadOnlyList<Roll> frameRolls)
+		static int CalculateFrameScore(int prevFrameScore, IReadOnlyList<Roll> frameRolls)
 		{
-			if (Rule.IsFrameOpen(frameRolls)) { return frameRolls[0].PinScore + frameRolls[1].PinScore; }
-			if (Rule.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return frameRolls[0].PinScore + frameRolls[1].PinScore + frameRolls[1].Next.PinScore; }
+			if (Rule.IsFrameOpen(frameRolls)) { return prevFrameScore + frameRolls[0].PinScore + frameRolls[1].PinScore; }
+			if (Rule.IsFrameSpare(frameRolls) && frameRolls[1].Next != null) { return prevFrameScore + frameRolls[0].PinScore + frameRolls[1].PinScore + frameRolls[1].Next.PinScore; }
 			if (Rule.IsFrameStrike(frameRolls) && frameRolls[0].Next != null && frameRolls[0].Next.Next != null)
 			{
-				return frameRolls[0].PinScore + frameRolls[0].Next.PinScore + frameRolls[0].Next.Next.PinScore;
+				return prevFrameScore + frameRolls[0].PinScore + frameRolls[0].Next.PinScore + frameRolls[0].Next.Next.PinScore;
 			}
 
 			throw new InvalidOperationException();

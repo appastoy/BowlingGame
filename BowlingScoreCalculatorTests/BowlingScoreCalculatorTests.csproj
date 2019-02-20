@@ -56,9 +56,11 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Linq\AssertAction.cs" />
+    <Compile Include="Linq\AssertActionExtensions.cs" />
     <Compile Include="Linq\AssertExtensions.cs" />
     <Compile Include="Linq\AssertValue.cs" />
-    <Compile Include="Linq\AssertValues.cs" />
+    <Compile Include="Linq\AssertValueExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuleTests.cs" />
     <Compile Include="ScoreCalculatorTests.cs" />

@@ -27,7 +27,7 @@ namespace BowlingScoreCalculator
 		{
 			Frames = frames ?? throw new ArgumentNullException(nameof(frames));
 			IsGameEnded = isGameEnded;
-			this.score = null;
+			this.score = score;
 		}
 	}
 }
